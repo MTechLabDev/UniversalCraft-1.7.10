@@ -1,12 +1,4 @@
-package gg.universal;
-
-import gg.essential.universal.utils.ReleasedDynamicTexture;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import org.lwjgl.opengl.GL11;
+package gg.essential.universal;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,6 +7,78 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
+
+//#if MC>=11602
+//$$ import java.util.ArrayList;
+//#endif
+
+//#if FABRIC
+//$$ import com.mojang.blaze3d.platform.GlStateManager;
+//$$ import net.minecraft.client.font.TextHandler;
+//$$ import net.minecraft.client.render.BufferBuilder;
+//$$ import net.minecraft.client.render.Tessellator;
+//$$ import net.minecraft.client.render.VertexConsumerProvider;
+//$$ import net.minecraft.client.render.VertexFormat;
+//$$ import net.minecraft.client.util.math.MatrixStack;
+//$$ import net.minecraft.client.util.math.Vector3f;
+//$$ import net.minecraft.text.StringVisitable;
+//$$ import net.minecraft.text.Style;
+//$$ import net.minecraft.util.math.Quaternion;
+//$$ import net.minecraft.client.texture.NativeImage;
+//$$ import net.minecraft.client.texture.NativeImageBackedTexture;
+//$$ import java.io.ByteArrayInputStream;
+//$$ import java.io.ByteArrayOutputStream;
+//#else
+import gg.essential.universal.utils.ReleasedDynamicTexture;
+import net.minecraft.client.renderer.Tessellator;
+//#if MC>=10809
+import net.minecraft.client.renderer.vertex.VertexFormat;
+//#endif
+//#endif
+import org.lwjgl.opengl.GL11;
+
+//#if FORGE && MC>=11602
+//$$ import net.minecraft.util.math.vector.Quaternion;
+//$$ import net.minecraft.util.ResourceLocation;
+//$$ import net.minecraft.util.text.Style;
+//$$ import net.minecraft.util.math.vector.Vector3f;
+//$$ import net.minecraft.util.text.CharacterManager;
+//$$ import net.minecraft.util.text.StringTextComponent;
+//$$ import net.minecraft.util.text.ITextProperties;
+//$$ import com.mojang.blaze3d.platform.GlStateManager;
+//$$ import com.mojang.blaze3d.matrix.MatrixStack;
+//$$ import net.minecraft.client.renderer.texture.NativeImage;
+//$$ import net.minecraft.client.renderer.IRenderTypeBuffer;
+//$$ import java.io.ByteArrayInputStream;
+//$$ import java.io.ByteArrayOutputStream;
+//$$ import net.minecraft.client.renderer.BufferBuilder;
+//$$ import java.util.ArrayList;
+//$$ import java.util.List;
+//$$ import java.util.Optional;
+//#endif
+
+//#if MC>=11602
+//$$ import com.mojang.blaze3d.systems.RenderSystem;
+//#elseif MC==11502
+//$$ import net.minecraft.client.renderer.Quaternion;
+//$$ import net.minecraft.client.renderer.Vector3f;
+//$$ import com.mojang.blaze3d.systems.RenderSystem;
+//$$ import com.mojang.blaze3d.platform.GlStateManager;
+//$$ import net.minecraft.client.renderer.BufferBuilder;
+//$$ import net.minecraft.client.renderer.IRenderTypeBuffer;
+//$$ import net.minecraft.client.renderer.texture.NativeImage;
+//$$ import java.io.ByteArrayInputStream;
+//$$ import java.io.ByteArrayOutputStream;
+//#elseif MC==11202
+//$$ import net.minecraft.client.renderer.GlStateManager;
+//$$ import net.minecraft.client.renderer.BufferBuilder;
+//$$ import net.minecraft.client.renderer.OpenGlHelper;
+//#else
+//#if MC==10809
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+//#endif
+import net.minecraft.client.renderer.OpenGlHelper;
 //#endif
 
 public class UGraphics {
