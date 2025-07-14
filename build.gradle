@@ -1,0 +1,180 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "https://maven.minecraftforge.net/"
+        }
+        maven {
+            url = "https://jitpack.io"
+        }
+    }
+    dependencies {
+        classpath('com.github.GTNewHorizons:ForgeGradle:1.2.11') {
+            exclude group: "org.eclipse.equinox"
+        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.71"
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+if(project.enable_lombok.toBoolean()) {
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.4'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+apply from: "buildscript/forge-1.7.gradle"
+apply plugin: 'maven-publish'
+
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.2.71"
+}
+
+
+def buildNumber = System.getenv('GITHUB_RUN_NUMBER') ?: 'local'
+def modVersion = "1.0.${buildNumber}"
+version = modVersion
+
+def jarBaseName = "SideMCShop-${project.minecraft_version}"
+
+task printVersion {
+    doLast {
+        println version
+    }
+}
+
+task printTag {
+    doLast {
+        println "${modVersion}-mc${project.minecraft_version}"
+    }
+}
+
+
+task configureServerJar {
+    doLast {
+        jar {
+            baseName = "SideMCShop-${project.minecraft_version}"
+            version = ''
+            classifier = 'server'
+            archiveName = "${baseName}-server.jar"
+        }
+    }
+}
+
+task configureClientJar {
+    doLast {
+        jar {
+            baseName = "SideMCShop-${project.minecraft_version}"
+            version = ''
+            classifier = 'client'
+            archiveName = "${baseName}-client.jar"
+        }
+    }
+}
+
+task prepareServer {
+    doFirst {
+        def file = file('src/main/java/net/sidemc/sidemcshop/ModSide.java')
+        file.text = file.text.replaceAll(/(SERVER\s*=\s*)(true|false)/, "\$1true")
+    }
+}
+
+task prepareClient {
+    doFirst {
+        def file = file('src/main/java/net/sidemc/sidemcshop/ModSide.java')
+        file.text = file.text.replaceAll(/(SERVER\s*=\s*)(true|false)/, "\$1false")
+    }
+}
+
+task buildServer(type: GradleBuild) {
+    group = 'mtechlab'
+    description = 'Полная сборка server jar'
+    tasks = ['prepareServer', 'configureServerJar', 'build']
+}
+
+task buildClient(type: GradleBuild) {
+    group = 'mtechlab'
+    description = 'Полная сборка client jar'
+    tasks = ['prepareClient', 'configureClientJar', 'build']
+}
+
+
+tasks.withType(Jar) {
+    exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+}
+
+task copyClientJar(type: Copy) {
+    description = 'Копирует собранный client JAR в run/mods перед запуском клиента'
+    from("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar")
+    into("$projectDir/run/mods")
+}
+
+copyClientJar.dependsOn buildClient
+runClient.dependsOn copyClientJar
+
+task copyServerJar(type: Copy) {
+    description = 'Копирует собранный client JAR в run/mods перед запуском клиента'
+    from("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar")
+    into("$projectDir/dev-server/1_7_10/mods")
+}
+
+copyServerJar.dependsOn buildServer
+runServer.dependsOn copyServerJar
+buildServer.finalizedBy copyServerJar
+copyServerJar.finalizedBy prepareClient
+
+runClient {
+    jvmArgs += "-Djdk.jar.disableSignatureVerification=true"
+}
+
+runServer {
+    jvmArgs += "-Djdk.jar.disableSignatureVerification=true"
+}
+
+
+publishing {
+    publications {
+        unified(MavenPublication) {
+            groupId = 'net.sidemc.sidemcshop'
+            artifactId = 'SideMCShop'
+            version = "${project.minecraft_version}-${modVersion}"
+
+            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar") {
+                classifier 'client'
+            }
+            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar") {
+                classifier 'server'
+            }
+        }
+
+        versioned(MavenPublication) {
+            groupId = 'net.sidemc.sidemcshop'
+            artifactId = "SideMCShop-${project.minecraft_version}"
+            version = modVersion
+
+            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar") {
+                classifier 'client'
+            }
+            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar") {
+                classifier 'server'
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "nexus"
+            url = uri("https://nexus-smc.mtechlab.dev/repository/maven-releases/")
+            credentials {
+                username = project.findProperty("nexusUser") ?: System.getenv("NEXUS_USERNAME")
+                password = project.findProperty("nexusPass") ?: System.getenv("NEXUS_PASSWORD")
+            }
+        }
+    }
+}
