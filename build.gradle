@@ -56,115 +56,19 @@ task printTag {
     }
 }
 
-
-task configureServerJar {
-    doLast {
-        jar {
-            baseName = "SideMCShop-${project.minecraft_version}"
-            version = ''
-            classifier = 'server'
-            archiveName = "${baseName}-server.jar"
-        }
-    }
-}
-
-task configureClientJar {
-    doLast {
-        jar {
-            baseName = "SideMCShop-${project.minecraft_version}"
-            version = ''
-            classifier = 'client'
-            archiveName = "${baseName}-client.jar"
-        }
-    }
-}
-
-task prepareServer {
-    doFirst {
-        def file = file('src/main/java/net/sidemc/sidemcshop/ModSide.java')
-        file.text = file.text.replaceAll(/(SERVER\s*=\s*)(true|false)/, "\$1true")
-    }
-}
-
-task prepareClient {
-    doFirst {
-        def file = file('src/main/java/net/sidemc/sidemcshop/ModSide.java')
-        file.text = file.text.replaceAll(/(SERVER\s*=\s*)(true|false)/, "\$1false")
-    }
-}
-
-task buildServer(type: GradleBuild) {
-    group = 'mtechlab'
-    description = 'Полная сборка server jar'
-    tasks = ['prepareServer', 'configureServerJar', 'build']
-}
-
-task buildClient(type: GradleBuild) {
-    group = 'mtechlab'
-    description = 'Полная сборка client jar'
-    tasks = ['prepareClient', 'configureClientJar', 'build']
-}
-
-
 tasks.withType(Jar) {
     exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
-}
-
-task copyClientJar(type: Copy) {
-    description = 'Копирует собранный client JAR в run/mods перед запуском клиента'
-    from("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar")
-    into("$projectDir/run/mods")
-}
-
-copyClientJar.dependsOn buildClient
-runClient.dependsOn copyClientJar
-
-task copyServerJar(type: Copy) {
-    description = 'Копирует собранный client JAR в run/mods перед запуском клиента'
-    from("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar")
-    into("$projectDir/dev-server/1_7_10/mods")
-}
-
-copyServerJar.dependsOn buildServer
-runServer.dependsOn copyServerJar
-buildServer.finalizedBy copyServerJar
-copyServerJar.finalizedBy prepareClient
-
-runClient {
-    jvmArgs += "-Djdk.jar.disableSignatureVerification=true"
-}
-
-runServer {
-    jvmArgs += "-Djdk.jar.disableSignatureVerification=true"
 }
 
 
 publishing {
     publications {
-        unified(MavenPublication) {
-            groupId = 'net.sidemc.sidemcshop'
-            artifactId = 'SideMCShop'
-            version = "${project.minecraft_version}-${modVersion}"
-
-            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar") {
-                classifier 'client'
-            }
-            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar") {
-                classifier 'server'
-            }
-        }
-
         versioned(MavenPublication) {
-            groupId = 'net.sidemc.sidemcshop'
-            artifactId = "SideMCShop-${project.minecraft_version}"
+            groupId = 'gg.essential.universal'
+            artifactId = "Universal-1.7.10"
             version = modVersion
 
-            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-client.jar") {
-                classifier 'client'
-            }
-            artifact("$buildDir/libs/SideMCShop-${project.minecraft_version}-server.jar") {
-                classifier 'server'
-            }
+            artifact("$buildDir/libs/Universal-${modVersion}.jar")
         }
     }
     repositories {
