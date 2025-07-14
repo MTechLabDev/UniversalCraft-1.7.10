@@ -3,7 +3,7 @@ name: Build, Release & Publish (Forge 1.7.10)
 on:
   push:
     branches:
-      - 1.7.10/dev
+      - master
   workflow_dispatch:
 
 permissions:
