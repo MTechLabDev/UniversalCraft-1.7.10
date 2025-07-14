@@ -4,9 +4,6 @@ import gg.essential.universal.UPacket
 import gg.essential.universal.UMinecraft
 import gg.essential.universal.wrappers.UPlayer
 
-//#if FABRIC
-//$$ import gg.essential.universal.utils.MCITextComponent
-//#endif
 
 class UMessage {
     private lateinit var _chatMessage: UTextComponent
@@ -32,13 +29,7 @@ class UMessage {
         if (component.siblings.isEmpty()) {
             messageParts.add(component)
         } else {
-            //#if FORGE
             component.siblings.map(::UTextComponent).forEach { messageParts.add(it) }
-            //#else
-            //$$ component.siblings
-            //$$         .map { UTextComponent(it as MCITextComponent) }
-            //$$         .forEach { messageParts.add(it) }
-            //#endif
         }
     }
 
@@ -74,13 +65,10 @@ class UMessage {
         if (!UPlayer.hasPlayer())
             return
 
-        // TODO: expose this field in MC>=11602
-        //#if MC<=11502
         if (chatLineId != -1) {
             UMinecraft.getChatGUI()?.printChatMessageWithOptionalDeletion(chatMessage, chatLineId)
             return
         }
-        //#endif
 
         if (isRecursive) {
             UPacket.sendChatMessage(_chatMessage)
@@ -90,14 +78,6 @@ class UMessage {
     }
 
     fun actionBar() {
-        //#if MC>=10809
-        parseMessage()
-
-        if (!UPlayer.hasPlayer())
-            return
-
-        UPacket.sendActionBarMessage(_chatMessage)
-        //#endif
     }
 
     private fun addPart(part: Any) {

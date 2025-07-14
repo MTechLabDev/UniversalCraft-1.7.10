@@ -1,21 +1,12 @@
 package gg.essential.universal
 
-//#if MC<=11202
 import org.lwjgl.input.Mouse
-//#endif
-
 import kotlin.math.max
 
 object UMouse {
     @JvmStatic
     fun getTrueX(): Double {
-        //#if FABRIC
-        //$$ return UMinecraft.getMinecraft().mouse.x
-        //#elseif MC>=11502
-        //$$ return UMinecraft.getMinecraft().mouseHelper.mouseX
-        //#else
         return Mouse.getX().toDouble()
-        //#endif
     }
 
     @JvmStatic
@@ -25,13 +16,7 @@ object UMouse {
 
     @JvmStatic
     fun getTrueY(): Double {
-        //#if FABRIC
-        //$$ return UMinecraft.getMinecraft().mouse.y
-        //#elseif MC>=11502
-        //$$ return UMinecraft.getMinecraft().mouseHelper.mouseY
-        //#else
         return Mouse.getY().toDouble()
-        //#endif
     }
 
     @JvmStatic
