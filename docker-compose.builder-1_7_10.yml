@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  sidemc-builder:
+    image: azul/zulu-openjdk:8
+    container_name: sidemc-builder
+    build:
+      context: .
+      dockerfile: Dockerfile.builder
+    volumes:
+      - ./build/libs:/workspace/build/libs:delegated
+    working_dir: /workspace
